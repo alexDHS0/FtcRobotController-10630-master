@@ -4,18 +4,21 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name="Auto1",group="Basic")
 @Disabled
 public class Auto1 extends LinearOpMode {
 //this is a test.
+    boolean test = true;
     DcMotorEx leftfront;
     DcMotorEx leftback;
     DcMotorEx rightfront;
     DcMotorEx rightback;
-
+    DcMotor armmove;
+    Servo woblearm;
     @Override
-    public void runopmode(){
+    public void runOpMode(){
 
         Initialize();
 
@@ -24,13 +27,26 @@ public class Auto1 extends LinearOpMode {
 
 
         int ticks =3*20;
-        forward(100,0.5);
-        backward(100,0.5);
-        left(100,0.5);
-        right(100,0.5);
+        if (test){
+            forward(100,0.5);
+            backward(100,0.5);
+            left(100,0.5);
+            right(100,0.5);
+
+        }
+        else{
+            armdown(100,0.3);
+            woblearm.setPosition(0.0);
+            armup(100,0.5);
+            right(100,0.5);
+            forward(300,0.5);
+        }
 
     }
     private void Initialize(){
+        woblearm = hardwareMap.get(Servo.class, "wa");
+        woblearm.setPosition(1);//all we need to ever use.
+
         leftfront = hardwareMap.get(DcMotorEx.class,"LF");
         leftback = hardwareMap.get(DcMotorEx.class,"LB");
         rightfront = hardwareMap.get(DcMotorEx.class,"RF");
@@ -38,6 +54,10 @@ public class Auto1 extends LinearOpMode {
         //the wheles dont have clean cut oreintations, we need to change some
         //leftfront.setDirection(DcMotorSimple.Direction.REVERSE);
         //we assume weve done this.
+
+        //initialize the weird wobble arm motor.
+        armmove = hardwareMap.get(DcMotor.class, "wm");
+        armmove.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         reset();
 
     }
@@ -47,11 +67,13 @@ public class Auto1 extends LinearOpMode {
         leftback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armmove.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // put them back into running mode
         leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armmove.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
     public void right(int ticks, double power){
         double encodervalue = averagencodervalue();
@@ -125,6 +147,28 @@ public class Auto1 extends LinearOpMode {
         rightback.setPower(0);
         rightfront.setPower(0);
 
+        reset();
+    }
+    public void armup( int ticks, double power){
+        int encodervalue = armmove.getCurrentPosition();
+        while(encodervalue < ticks){
+            armmove.setPower(power);
+
+            encodervalue = leftfront.getCurrentPosition();
+
+        }
+        armmove.setPower(0);
+        reset();
+    }
+    public void armdown( int ticks, double power){
+        int encodervalue = armmove.getCurrentPosition();
+        while(encodervalue > -ticks){
+            armmove.setPower(-power);
+
+            encodervalue = leftfront.getCurrentPosition();
+
+        }
+        armmove.setPower(0);
         reset();
     }
 

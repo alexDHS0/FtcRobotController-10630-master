@@ -12,6 +12,9 @@ public class TeleOp extends LinearOpMode {
     DcMotor backRight;
     DcMotor backLeft;
     DcMotor armmove;
+    DcMotor intake;
+    DcMotor stepper;
+    DcMotor flywheel;
     Servo woblearm;
     boolean previousRb = false;
     boolean previousLb = false;
@@ -33,8 +36,11 @@ public class TeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             driveset();
             grabset();
-
-            setmode();
+            armcontroll();
+            shootset();
+            setintake();
+            stepset();
+            /*setmode();
             //this is mostly so we have a working prototype which lets us use the
             if (armManual == true) {
             armcontroll();
@@ -46,7 +52,7 @@ public class TeleOp extends LinearOpMode {
             }
             //armmove.setTargetPosition(1);
             //grabmove();
-
+            */
         }
 
 
@@ -69,7 +75,7 @@ public class TeleOp extends LinearOpMode {
     }
 
     private void grabset(){
-        boolean rb = gamepad1.right_bumper;
+        boolean rb = gamepad2.right_bumper;
 
 
         if(rb && !previousRb){
@@ -83,6 +89,85 @@ public class TeleOp extends LinearOpMode {
         previousRb = rb;
     }
 
+    private void armcontroll(){
+        if(gamepad2.y) {
+            armmove.setPower(6.0);
+        }
+        else if(gamepad2.b){
+            armmove.setPower(-6.0);
+        }
+        else {
+            armmove.setPower(0.0);
+
+        }
+    }
+
+    private void shootset(){
+        if(gamepad2.right_trigger > 0.25){
+            flywheel.setPower(1.0);
+        }else {
+            flywheel.setPower(0.0);
+        }
+    }
+
+    private void setintake(){
+        if(gamepad2.left_trigger > 0.25){
+            intake.setPower(1.0);
+        }else {
+            intake.setPower(0.0);
+        }
+    }
+
+    private void stepset(){
+        if(gamepad2.x){
+            stepper.setPower(0.5);
+        }
+        else {
+            stepper.setPower(0.0);
+        }
+    }
+
+    public void initialize() {
+
+        //initialize servos
+        woblearm = hardwareMap.get(Servo.class, "wa");
+        woblearm.setPosition(1);//all we need to ever use.
+
+        //initialize the wobble arm motor.
+        armmove = hardwareMap.get(DcMotor.class, "wm");
+        armmove.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //we set it so that the position the motor is in does not go any farther back when we reset it, and so that the motor hopefully does less work holding up the goal.
+        armmove.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //initialize the intake and output motors
+        intake = hardwareMap.get(DcMotor.class, "in");
+        stepper = hardwareMap.get(DcMotor.class,"stp");
+        flywheel = hardwareMap.get(DcMotor.class, "fw");
+
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        stepper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //initialize drive train motors,
+        frontRight = hardwareMap.get(DcMotor.class, "fr");
+        frontLeft = hardwareMap.get(DcMotor.class, "fl");
+        backRight = hardwareMap.get(DcMotor.class, "br");
+        backLeft = hardwareMap.get(DcMotor.class, "bl");
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontRight.setPower(0);
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+
+
+    }
+    /*
     private void  grabmove(){
         boolean lb = gamepad1.left_bumper;
 
@@ -109,20 +194,8 @@ public class TeleOp extends LinearOpMode {
         }
     }
     //manual contoll of the arm.
-    private void armcontroll(){
-        if(gamepad1.a) {
-            armmove.setPower(6.0);
-        }
-        else if(gamepad1.b){
-            armmove.setPower(-6.0);
-        }
-        else {
-            armmove.setPower(0.0);
 
-        }
-    }
 
-    /*
     private void moveForeward() {
         //find the value the gamepad joystick reads.
         double power = gamepad1.right_stick_y;
@@ -132,36 +205,8 @@ public class TeleOp extends LinearOpMode {
         backLeft.setPower(power);
         backRight.setPower(power);
     }
-    */ //we dont need this anymore
-    public void initialize() {
+    //we dont need this anymore
 
-        //initialize servos
-        woblearm = hardwareMap.get(Servo.class, "wa");
-        woblearm.setPosition(1);//all we need to ever use.
-
-
-        //initialize drive train motors,
-        frontRight = hardwareMap.get(DcMotor.class, "fr");
-        frontLeft = hardwareMap.get(DcMotor.class, "fl");
-        backRight = hardwareMap.get(DcMotor.class, "br");
-        backLeft = hardwareMap.get(DcMotor.class, "bl");
-
-        frontRight.setPower(0);
-        frontLeft.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
-
-        //initialize the weird wobble arm motor.
-        armmove = hardwareMap.get(DcMotor.class, "wm");
-        armmove.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //we set it so that the position the motor is in does not go any farther back when we reset it, and so that the motor hopefully does less work holding up the goal.
-        armmove.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //we make sure that the position is set to an acurate position we know.
-        armmove.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //let the motor use run to position.
-        //armmove.setTargetPosition(1);//ONE WILL PROBABLY BRAKE SOMETHING, FIND THE WORKING VALUES AND CHANGE THIS!
-        //armmove.setTargetPosition(10);
-    }
     //a manual test program that lets you manualy use set trget mode. split into a forward and backwards based on two buttons.
     private void testarmadd(){
         boolean Apress = gamepad1.a;
@@ -179,5 +224,5 @@ public class TeleOp extends LinearOpMode {
         }
         previousB = Bpress;
     }
-
+    */
 }
