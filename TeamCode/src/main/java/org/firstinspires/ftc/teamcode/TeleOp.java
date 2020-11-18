@@ -57,7 +57,8 @@ public class TeleOp extends LinearOpMode {
 
 
     }
-
+// the driver with gamepad 1 drives the robot,
+//the robot can go in all four directions with the left stick and turn with the right stick.
     private void driveset() {
         double r = Math.hypot(gamepad1.left_stick_x, -gamepad1.left_stick_y); //we might have to take out the negatives.
         double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
@@ -73,7 +74,7 @@ public class TeleOp extends LinearOpMode {
         backLeft.setPower(v3*1.41);
         backRight.setPower(v4*1.41);
     }
-
+//the driver with gamepad 2 controlls the servo with right bumper to switch between open and closed..
     private void grabset(){
         boolean rb = gamepad2.right_bumper;
 
@@ -88,7 +89,7 @@ public class TeleOp extends LinearOpMode {
         }
         previousRb = rb;
     }
-
+// the driver with gampad 2 uses the y and b buttons to move the arm up and down.
     private void armcontroll(){
         if(gamepad2.y) {
             armmove.setPower(6.0);
@@ -101,7 +102,7 @@ public class TeleOp extends LinearOpMode {
 
         }
     }
-
+// the driver with gamepad 2 uses the right trigerr to activate the motor and shoot disks.
     private void shootset(){
         if(gamepad2.right_trigger > 0.25){
             flywheel.setPower(1.0);
@@ -109,15 +110,15 @@ public class TeleOp extends LinearOpMode {
             flywheel.setPower(0.0);
         }
     }
-
+//the
     private void setintake(){
-        if(gamepad2.left_trigger > 0.25){
+        if(gamepad1.left_trigger > 0.25){
             intake.setPower(1.0);
         }else {
             intake.setPower(0.0);
         }
-    }
-
+    }//drive train does this.
+//the secondary step motor in th eintake is controlled by gampad 2.
     private void stepset(){
         if(gamepad2.x){
             stepper.setPower(0.5);
@@ -126,12 +127,12 @@ public class TeleOp extends LinearOpMode {
             stepper.setPower(0.0);
         }
     }
-
+//initialization code. robot should not yet move on intitalization.
     public void initialize() {
 
         //initialize servos
         woblearm = hardwareMap.get(Servo.class, "wa");
-        woblearm.setPosition(1);//all we need to ever use.
+        //woblearm.setPosition(1);//all we need to ever use.
 
         //initialize the wobble arm motor.
         armmove = hardwareMap.get(DcMotor.class, "wm");
