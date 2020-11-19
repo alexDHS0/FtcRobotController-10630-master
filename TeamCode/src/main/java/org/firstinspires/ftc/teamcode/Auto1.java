@@ -4,10 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name="Auto1",group="Basic")
-@Disabled
 public class Auto1 extends LinearOpMode {
 //this is a test.
     boolean test = true;
@@ -16,6 +16,9 @@ public class Auto1 extends LinearOpMode {
     DcMotorEx rightfront;
     DcMotorEx rightback;
     DcMotor armmove;
+    DcMotor intake;
+    DcMotor stepper;
+    DcMotor flywheel;
     Servo woblearm;
     @Override
     public void runOpMode(){
@@ -45,16 +48,25 @@ public class Auto1 extends LinearOpMode {
     }
     private void Initialize(){
         woblearm = hardwareMap.get(Servo.class, "wa");
-        woblearm.setPosition(1);//all we need to ever use.
+        //woblearm.setPosition(1);//all we need to ever use.
 
         leftfront = hardwareMap.get(DcMotorEx.class,"LF");
         leftback = hardwareMap.get(DcMotorEx.class,"LB");
         rightfront = hardwareMap.get(DcMotorEx.class,"RF");
         rightback = hardwareMap.get(DcMotorEx.class,"RB");
         //the wheles dont have clean cut oreintations, we need to change some
-        //leftfront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftback.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightback.setDirection(DcMotorSimple.Direction.REVERSE);
         //we assume weve done this.
+        intake = hardwareMap.get(DcMotor.class, "in");
+        stepper = hardwareMap.get(DcMotor.class,"stp");
+        flywheel = hardwareMap.get(DcMotor.class, "fw");
 
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        stepper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        stepper.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         //initialize the weird wobble arm motor.
         armmove = hardwareMap.get(DcMotor.class, "wm");
         armmove.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -68,12 +80,18 @@ public class Auto1 extends LinearOpMode {
         rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armmove.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        stepper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // put them back into running mode
         leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armmove.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        stepper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
     public void right(int ticks, double power){
         double encodervalue = averagencodervalue();

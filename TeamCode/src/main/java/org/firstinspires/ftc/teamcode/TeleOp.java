@@ -3,8 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-@Disabled
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp
 public class TeleOp extends LinearOpMode {
 
     DcMotor frontRight;
@@ -60,9 +61,9 @@ public class TeleOp extends LinearOpMode {
 // the driver with gamepad 1 drives the robot,
 //the robot can go in all four directions with the left stick and turn with the right stick.
     private void driveset() {
-        double r = Math.hypot(gamepad1.left_stick_x, -gamepad1.left_stick_y); //we might have to take out the negatives.
-        double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-        double rightX = gamepad1.right_stick_x;
+        double r = Math.hypot(gamepad1.left_stick_y, gamepad1.left_stick_x); //we might have to take out the negatives.
+        double robotAngle = Math.atan2( gamepad1.left_stick_x,gamepad1.left_stick_y) - Math.PI / 4;
+        double rightX = -gamepad1.right_stick_x;
 
         final double v1 = r * Math.cos(robotAngle) + rightX;//we may not need the final.
         final double v2 = r * Math.sin(robotAngle) - rightX;
@@ -92,10 +93,10 @@ public class TeleOp extends LinearOpMode {
 // the driver with gampad 2 uses the y and b buttons to move the arm up and down.
     private void armcontroll(){
         if(gamepad2.y) {
-            armmove.setPower(6.0);
+            armmove.setPower(0.6);
         }
         else if(gamepad2.b){
-            armmove.setPower(-6.0);
+            armmove.setPower(-0.6);
         }
         else {
             armmove.setPower(0.0);
@@ -121,7 +122,7 @@ public class TeleOp extends LinearOpMode {
 //the secondary step motor in th eintake is controlled by gampad 2.
     private void stepset(){
         if(gamepad2.x){
-            stepper.setPower(0.5);
+            stepper.setPower(0.7);
         }
         else {
             stepper.setPower(0.0);
@@ -147,8 +148,9 @@ public class TeleOp extends LinearOpMode {
 
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         stepper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        stepper.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         //initialize drive train motors,
         frontRight = hardwareMap.get(DcMotor.class, "fr");
         frontLeft = hardwareMap.get(DcMotor.class, "fl");
@@ -158,7 +160,9 @@ public class TeleOp extends LinearOpMode {
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontRight.setPower(0);
         frontLeft.setPower(0);
